@@ -3,6 +3,15 @@ import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
+const ErrorMessage = (error) => {
+  if(!error) return (<div></div>)
+
+  return (
+  <div style={{background:'lightgray', border: '2px', borderStyle: 'solid', borderColor: 'gray', fontSize: '20px', padding: '10px', margin: '5px'}}>
+    {error}
+  </div>)
+}
+
 const LoginForm = (handleLogin, username, password, setUsername, setPassword) => {
 
   return (
@@ -52,6 +61,8 @@ const UserBlog = (user, setUser, blogs, postBlog, blogObjs) => {
 }
 
 const App = () => {
+  const [error, setError] = useState(null)
+
   const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -93,7 +104,10 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch(exception) {
-      console.log(exception)
+      setError('Credentials were wrong')
+      setTimeout(()=>{
+        setError(null)
+      }, 4000)
     }
   }
 
@@ -108,15 +122,26 @@ const App = () => {
       setBlogUrl('')
 
       setBlogs(blogs.concat(res))
+      
+      setError(`Added a new blog '${res.title}' by '${res.author}'`)
+      setTimeout(()=>{
+        setError(null)
+      }, 4000)
+
+
     } catch (exception)
     {
-       console.log(exception)
+      setError('Failed to add new blog')
+      setTimeout(()=>{
+        setError(null)
+      }, 4000)
     }
   }
 
   return (
     <div>
       <h2>blogs</h2>
+      {ErrorMessage(error)}
       {user === null ? LoginForm(handleLogin, username, password, setUsername, setPassword) : UserBlog(user, setUser, blogs, postBlog, blogObjs)}
     </div>
   )
