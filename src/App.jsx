@@ -24,9 +24,15 @@ const Blogs = (blogs) => {
   </div>)
 }
 
-const UserBlog = (user, blogs) => {
+
+const UserBlog = (user, setUser, blogs) => {
+  const logout = (input) => {
+    window.localStorage.removeItem('loggedBlogAppUser')
+    setUser(null)
+  }
+
   return (<div>
-    <p>{user.name} logged in</p>
+    <p>{user.name} logged in <button onClick={logout}>Logout</button></p>
     {Blogs(blogs)}
   </div>)
 }
@@ -43,26 +49,37 @@ const App = () => {
     )  
   }, [])
 
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
+    if(loggedUserJSON)
+    {
+      const user = JSON.parse(loggedUserJSON)
+      setUser(user)
+    }
+  }, [])
+
   const handleLogin = async (e) => {
     e.preventDefault()
-    console.log(`Logging in as user ${username} with password ${password}`)
 
     try {
       const user = await loginService.login({username, password})
+
+      window.localStorage.setItem('loggedBlogAppUser', JSON.stringify(user))
+
       setUser(user)
       setUsername('')
       setPassword('')
 
       console.log(`Logged in as`, user)
     } catch(exception) {
-      //TODO: error message
+      // TODO: error message
     }
   }
 
   return (
     <div>
       <h2>blogs</h2>
-      {user === null ? LoginForm(handleLogin, username, password, setUsername, setPassword) : UserBlog(user, blogs)}
+      {user === null ? LoginForm(handleLogin, username, password, setUsername, setPassword) : UserBlog(user, setUser, blogs)}
     </div>
   )
 }
