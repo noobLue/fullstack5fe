@@ -24,8 +24,19 @@ const Blogs = (blogs) => {
   </div>)
 }
 
+const BlogForm = (postBlog, blogObjs) => {
+  return (
+    <form onSubmit={postBlog}>
+      title <input type='text' value={blogObjs.blogTitle} name='BlogTitle' onChange={({target})=>{blogObjs.setBlogTitle(target.value)}}></input> <br/>
+      author <input type='text' value={blogObjs.blogAuthor} name='BlogAuthor' onChange={({target})=>{blogObjs.setBlogAuthor(target.value)}}></input> <br/>
+      url <input type='text' value={blogObjs.blogUrl} name='BlogUrl' onChange={({target})=>{blogObjs.setBlogUrl(target.value)}}></input> <br/>
+      <button type='submit'>submit</button>
+    </form>
+    )
+}
 
-const UserBlog = (user, setUser, blogs) => {
+
+const UserBlog = (user, setUser, blogs, postBlog, blogObjs) => {
   const logout = (input) => {
     window.localStorage.removeItem('loggedBlogAppUser')
     setUser(null)
@@ -33,6 +44,9 @@ const UserBlog = (user, setUser, blogs) => {
 
   return (<div>
     <p>{user.name} logged in <button onClick={logout}>Logout</button></p>
+    <h3>Create new blog</h3>
+    {BlogForm(postBlog, blogObjs)}
+    <h3>Blogs list</h3>
     {Blogs(blogs)}
   </div>)
 }
@@ -42,6 +56,12 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
+  
+  const [blogTitle, setBlogTitle] = useState('')
+  const [blogAuthor, setBlogAuthor] = useState('')
+  const [blogUrl, setBlogUrl] = useState('')
+
+  const blogObjs = {blogTitle, setBlogTitle, blogAuthor, setBlogAuthor, blogUrl, setBlogUrl}
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -54,6 +74,8 @@ const App = () => {
     if(loggedUserJSON)
     {
       const user = JSON.parse(loggedUserJSON)
+
+      blogService.setToken(user.token)
       setUser(user)
     }
   }, [])
@@ -66,20 +88,36 @@ const App = () => {
 
       window.localStorage.setItem('loggedBlogAppUser', JSON.stringify(user))
 
+      blogService.setToken(user.token)
       setUser(user)
       setUsername('')
       setPassword('')
-
-      console.log(`Logged in as`, user)
     } catch(exception) {
-      // TODO: error message
+      console.log(exception)
+    }
+  }
+
+  const postBlog = async (e) => {
+    e.preventDefault()
+
+    try {
+      const res = await blogService.postBlog({title: blogTitle, author: blogAuthor, url: blogUrl})
+
+      setBlogTitle('')
+      setBlogAuthor('')
+      setBlogUrl('')
+
+      setBlogs(blogs.concat(res))
+    } catch (exception)
+    {
+       console.log(exception)
     }
   }
 
   return (
     <div>
       <h2>blogs</h2>
-      {user === null ? LoginForm(handleLogin, username, password, setUsername, setPassword) : UserBlog(user, setUser, blogs)}
+      {user === null ? LoginForm(handleLogin, username, password, setUsername, setPassword) : UserBlog(user, setUser, blogs, postBlog, blogObjs)}
     </div>
   )
 }
