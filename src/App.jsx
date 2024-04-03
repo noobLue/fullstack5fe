@@ -64,7 +64,7 @@ const App = () => {
   
   useEffect(() => {
     blogService.getAll().then(blogs =>
-      setBlogs( blogs )
+      setBlogs( blogs.sort((a,b) => a.likes < b.likes) )
     )  
   }, [])
 
@@ -87,18 +87,6 @@ const App = () => {
     }, 4000)
   }
 
-  const createBlog = async (blog) => {
-    try {
-      const res = await blogService.postBlog(blog)
-      setBlogs(blogs.concat(res))
-      
-      handleMessage(`Added a new blog '${res.title}' by '${res.author}'`)
-    } catch (exception)
-    {
-      handleMessage('Failed to add new blog')
-    }
-  }
-
   const handleLogin = async (e) => {
     e.preventDefault()
 
@@ -113,6 +101,18 @@ const App = () => {
       setPassword('')
     } catch(exception) {
       handleMessage('Credentials were wrong')
+    }
+  }
+
+  const createBlog = async (blog) => {
+    try {
+      const res = await blogService.postBlog(blog)
+      setBlogs(blogs.concat(res))
+      
+      handleMessage(`Added a new blog '${res.title}' by '${res.author}'`)
+    } catch (exception)
+    {
+      handleMessage('Failed to add new blog')
     }
   }
 
