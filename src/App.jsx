@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
+import BlogForm from './components/BlogForm'
 import Toggleable from './components/Toggleable'
 import blogService from './services/blogs'
 import loginService from './services/login'
@@ -35,19 +36,8 @@ const Blogs = (blogs) => {
   </div>)
 }
 
-const BlogForm = (postBlog, blogObjs) => {
-  return (
-    <form onSubmit={postBlog}>
-      title <input type='text' value={blogObjs.blogTitle} name='BlogTitle' onChange={({target})=>{blogObjs.setBlogTitle(target.value)}}></input> <br/>
-      author <input type='text' value={blogObjs.blogAuthor} name='BlogAuthor' onChange={({target})=>{blogObjs.setBlogAuthor(target.value)}}></input> <br/>
-      url <input type='text' value={blogObjs.blogUrl} name='BlogUrl' onChange={({target})=>{blogObjs.setBlogUrl(target.value)}}></input> <br/>
-      <button type='submit'>submit</button>
-    </form>
-    )
-}
 
-
-const UserBlog = (user, setUser, blogs, postBlog, blogObjs) => {
+const UserBlog = (user, setUser, blogs, createBlog) => {
   const logout = (input) => {
     window.localStorage.removeItem('loggedBlogAppUser')
     setUser(null)
@@ -57,7 +47,7 @@ const UserBlog = (user, setUser, blogs, postBlog, blogObjs) => {
     <p>{user.name} logged in <button onClick={logout}>Logout</button></p>
     <Toggleable startVisible={false} text={'Add blog'}>
       <h3>Create new blog</h3>
-      {BlogForm(postBlog, blogObjs)}
+      <BlogForm createBlog={createBlog}/>
     </Toggleable>
     <h3>Blogs list</h3>
     {Blogs(blogs)}
@@ -72,12 +62,6 @@ const App = () => {
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   
-  const [blogTitle, setBlogTitle] = useState('')
-  const [blogAuthor, setBlogAuthor] = useState('')
-  const [blogUrl, setBlogUrl] = useState('')
-
-  const blogObjs = {blogTitle, setBlogTitle, blogAuthor, setBlogAuthor, blogUrl, setBlogUrl}
-
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
@@ -95,6 +79,26 @@ const App = () => {
     }
   }, [])
 
+  const handleMessage = async (message) => {
+    // TODO: save timeout so multiple timeouts at the same time can be prevented? 
+    setError(message)
+    setTimeout(()=>{
+      setError(null)
+    }, 4000)
+  }
+
+  const createBlog = async (blog) => {
+    try {
+      const res = await blogService.postBlog(blog)
+      setBlogs(blogs.concat(res))
+      
+      handleMessage(`Added a new blog '${res.title}' by '${res.author}'`)
+    } catch (exception)
+    {
+      handleMessage('Failed to add new blog')
+    }
+  }
+
   const handleLogin = async (e) => {
     e.preventDefault()
 
@@ -108,37 +112,7 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch(exception) {
-      setError('Credentials were wrong')
-      setTimeout(()=>{
-        setError(null)
-      }, 4000)
-    }
-  }
-
-  const postBlog = async (e) => {
-    e.preventDefault()
-
-    try {
-      const res = await blogService.postBlog({title: blogTitle, author: blogAuthor, url: blogUrl})
-
-      setBlogTitle('')
-      setBlogAuthor('')
-      setBlogUrl('')
-
-      setBlogs(blogs.concat(res))
-      
-      setError(`Added a new blog '${res.title}' by '${res.author}'`)
-      setTimeout(()=>{
-        setError(null)
-      }, 4000)
-
-
-    } catch (exception)
-    {
-      setError('Failed to add new blog')
-      setTimeout(()=>{
-        setError(null)
-      }, 4000)
+      handleMessage('Credentials were wrong')
     }
   }
 
@@ -146,7 +120,7 @@ const App = () => {
     <div>
       <h2>blogs</h2>
       {ErrorMessage(error)}
-      {user === null ? LoginForm(handleLogin, username, password, setUsername, setPassword) : UserBlog(user, setUser, blogs, postBlog, blogObjs)}
+      {user === null ? LoginForm(handleLogin, username, password, setUsername, setPassword) : UserBlog(user, setUser, blogs, createBlog)}
     </div>
   )
 }
