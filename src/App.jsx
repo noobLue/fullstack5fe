@@ -120,10 +120,8 @@ const App = () => {
     try {
       const res = await blogService.putBlog(blog)
 
-      await blogService.getAll().then(blogs =>
-        setBlogs( blogs )
-      )
-      
+      setBlogs(blogs.map(b => b.id === res.id ? res : b))
+
     } catch (exception)
     {
       handleMessage('Failed to add like')
