@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import BlogForm from './components/BlogForm'
 import Toggleable from './components/Toggleable'
@@ -37,7 +37,7 @@ const Blogs = (user, blogs, addLike, removeBlog) => {
 }
 
 
-const UserBlog = (user, setUser, blogs, createBlog, addLike, removeBlog) => {
+const UserBlog = (user, setUser, blogs, createBlog, addLike, removeBlog, blogFormRef) => {
   const logout = (input) => {
     window.localStorage.removeItem('loggedBlogAppUser')
     setUser(null)
@@ -45,7 +45,7 @@ const UserBlog = (user, setUser, blogs, createBlog, addLike, removeBlog) => {
 
   return (<div>
     <p>{user.name} logged in <button onClick={logout}>Logout</button></p>
-    <Toggleable startVisible={false} text={'Add blog'}>
+    <Toggleable startVisible={false} text={'Add blog'} ref={blogFormRef}>
       <h3>Create new blog</h3>
       <BlogForm createBlog={createBlog}/>
     </Toggleable>
@@ -56,11 +56,12 @@ const UserBlog = (user, setUser, blogs, createBlog, addLike, removeBlog) => {
 
 const App = () => {
   const [error, setError] = useState(null)
-
   const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
+
+  const blogFormRef = useRef()
   
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -108,6 +109,7 @@ const App = () => {
     try {
       const res = await blogService.postBlog(blog)
       setBlogs(blogs.concat(res))
+      blogFormRef.current.toggleVisibility(false)
       
       handleMessage(`Added a new blog '${res.title}' by '${res.author}'`)
     } catch (exception)
@@ -145,7 +147,7 @@ const App = () => {
     <div>
       <h2>blogs</h2>
       {ErrorMessage(error)}
-      {user === null ? LoginForm(handleLogin, username, password, setUsername, setPassword) : UserBlog(user, setUser, blogs, createBlog, addLike, removeBlog)}
+      {user === null ? LoginForm(handleLogin, username, password, setUsername, setPassword) : UserBlog(user, setUser, blogs, createBlog, addLike, removeBlog, blogFormRef)}
     </div>
   )
 }
