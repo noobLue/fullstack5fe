@@ -28,16 +28,16 @@ const LoginForm = (handleLogin, username, password, setUsername, setPassword) =>
   )
 }
 
-const Blogs = (blogs) => {
+const Blogs = (blogs, addLike) => {
   return (<div>
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} addLike={addLike}/>
       )}
   </div>)
 }
 
 
-const UserBlog = (user, setUser, blogs, createBlog) => {
+const UserBlog = (user, setUser, blogs, createBlog, addLike) => {
   const logout = (input) => {
     window.localStorage.removeItem('loggedBlogAppUser')
     setUser(null)
@@ -50,7 +50,7 @@ const UserBlog = (user, setUser, blogs, createBlog) => {
       <BlogForm createBlog={createBlog}/>
     </Toggleable>
     <h3>Blogs list</h3>
-    {Blogs(blogs)}
+    {Blogs(blogs, addLike)}
   </div>)
 }
 
@@ -116,11 +116,25 @@ const App = () => {
     }
   }
 
+  const addLike = async (blog) => {
+    try {
+      const res = await blogService.putBlog(blog)
+
+      await blogService.getAll().then(blogs =>
+        setBlogs( blogs )
+      )
+      
+    } catch (exception)
+    {
+      handleMessage('Failed to add like')
+    }
+  }
+
   return (
     <div>
       <h2>blogs</h2>
       {ErrorMessage(error)}
-      {user === null ? LoginForm(handleLogin, username, password, setUsername, setPassword) : UserBlog(user, setUser, blogs, createBlog)}
+      {user === null ? LoginForm(handleLogin, username, password, setUsername, setPassword) : UserBlog(user, setUser, blogs, createBlog, addLike)}
     </div>
   )
 }

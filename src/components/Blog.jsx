@@ -1,6 +1,6 @@
 import { useState, useEffect} from 'react'
 
-const Blog = ({ blog }) => {
+const Blog = ({ blog, addLike }) => {
   const [visible, setVisible] = useState(false)
   const [buttonText, setButtonText] = useState('show')
 
@@ -16,7 +16,8 @@ const Blog = ({ blog }) => {
   const handleLike = async (e) => {
     e.preventDefault()
 
-    console.log('not implemented yet')
+    await addLike({...blog, user: blog.user.id, likes: blog.likes + 1})
+
   }
 
   return (
