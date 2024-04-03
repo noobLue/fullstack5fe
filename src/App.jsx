@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
+import Toggleable from './components/Toggleable'
 import blogService from './services/blogs'
 import loginService from './services/login'
+
 
 const ErrorMessage = (error) => {
   if(!error) return (<div></div>)
@@ -53,8 +55,10 @@ const UserBlog = (user, setUser, blogs, postBlog, blogObjs) => {
 
   return (<div>
     <p>{user.name} logged in <button onClick={logout}>Logout</button></p>
-    <h3>Create new blog</h3>
-    {BlogForm(postBlog, blogObjs)}
+    <Toggleable startVisible={false} text={'Add blog'}>
+      <h3>Create new blog</h3>
+      {BlogForm(postBlog, blogObjs)}
+    </Toggleable>
     <h3>Blogs list</h3>
     {Blogs(blogs)}
   </div>)
