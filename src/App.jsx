@@ -28,16 +28,16 @@ const LoginForm = (handleLogin, username, password, setUsername, setPassword) =>
   )
 }
 
-const Blogs = (blogs, addLike) => {
+const Blogs = (user, blogs, addLike, removeBlog) => {
   return (<div>
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} addLike={addLike}/>
+        <Blog key={blog.id} blog={blog} user={user} addLike={addLike} removeBlog={removeBlog}/>
       )}
   </div>)
 }
 
 
-const UserBlog = (user, setUser, blogs, createBlog, addLike) => {
+const UserBlog = (user, setUser, blogs, createBlog, addLike, removeBlog) => {
   const logout = (input) => {
     window.localStorage.removeItem('loggedBlogAppUser')
     setUser(null)
@@ -50,7 +50,7 @@ const UserBlog = (user, setUser, blogs, createBlog, addLike) => {
       <BlogForm createBlog={createBlog}/>
     </Toggleable>
     <h3>Blogs list</h3>
-    {Blogs(blogs, addLike)}
+    {Blogs(user, blogs, addLike, removeBlog)}
   </div>)
 }
 
@@ -128,11 +128,24 @@ const App = () => {
     }
   }
 
+  const removeBlog = async (blog) => {
+    try {
+      // TODO: should res contain deleted blog?
+      const res = await blogService.deleteBlog(blog)
+      setBlogs(blogs.filter(b => b.id !== blog.id))
+      
+      handleMessage(`Removed blog '${blog.title}' by '${blog.author}'`)
+    } catch (exception)
+    {
+      handleMessage('Failed to remove blog')
+    }
+  }
+
   return (
     <div>
       <h2>blogs</h2>
       {ErrorMessage(error)}
-      {user === null ? LoginForm(handleLogin, username, password, setUsername, setPassword) : UserBlog(user, setUser, blogs, createBlog, addLike)}
+      {user === null ? LoginForm(handleLogin, username, password, setUsername, setPassword) : UserBlog(user, setUser, blogs, createBlog, addLike, removeBlog)}
     </div>
   )
 }
