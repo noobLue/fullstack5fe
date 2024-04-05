@@ -10,9 +10,9 @@ const ErrorMessage = (error) => {
   if(!error) return (<div></div>)
 
   return (
-  <div style={{background:'lightgray', border: '2px', borderStyle: 'solid', borderColor: 'gray', fontSize: '20px', padding: '10px', margin: '5px'}}>
-    {error}
-  </div>)
+    <div style={{ background:'lightgray', border: '2px', borderStyle: 'solid', borderColor: 'gray', fontSize: '20px', padding: '10px', margin: '5px' }}>
+      {error}
+    </div>)
 }
 
 const LoginForm = (handleLogin, username, password, setUsername, setPassword) => {
@@ -20,8 +20,8 @@ const LoginForm = (handleLogin, username, password, setUsername, setPassword) =>
   return (
     <form onSubmit={handleLogin}>
       <div>
-        username <input type='text' value = {username} name='Username' onChange={({target})=>{setUsername(target.value)}}></input>
-        password <input type='password' value = {password} name='Password' onChange={({target})=>{setPassword(target.value)}}></input>
+        username <input type='text' value = {username} name='Username' onChange={({ target }) => {setUsername(target.value)}}></input>
+        password <input type='password' value = {password} name='Password' onChange={({ target }) => {setPassword(target.value)}}></input>
         <button type='submit'>login</button>
       </div>
     </form>
@@ -30,9 +30,9 @@ const LoginForm = (handleLogin, username, password, setUsername, setPassword) =>
 
 const Blogs = (user, blogs, addLike, removeBlog) => {
   return (<div>
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} user={user} addLike={addLike} removeBlog={removeBlog}/>
-      )}
+    {blogs.map(blog =>
+      <Blog key={blog.id} blog={blog} user={user} addLike={addLike} removeBlog={removeBlog}/>
+    )}
   </div>)
 }
 
@@ -45,7 +45,7 @@ const UserBlog = (user, setUser, blogs, createBlog, addLike, removeBlog, blogFor
 
   return (<div>
     <p>{user.name} logged in <button onClick={logout}>Logout</button></p>
-    <Toggleable startVisible={false} text={'Add blog'} ref={blogFormRef}>
+    <Toggleable startVisible={false} buttonLabel={'Add blog'} ref={blogFormRef}>
       <h3>Create new blog</h3>
       <BlogForm createBlog={createBlog}/>
     </Toggleable>
@@ -62,11 +62,11 @@ const App = () => {
   const [user, setUser] = useState(null)
 
   const blogFormRef = useRef()
-  
+
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs.sort((a,b) => a.likes < b.likes) )
-    )  
+    )
   }, [])
 
   useEffect(() => {
@@ -81,9 +81,9 @@ const App = () => {
   }, [])
 
   const handleMessage = async (message) => {
-    // TODO: save timeout so multiple timeouts at the same time can be prevented? 
+    // TODO: save timeout so multiple timeouts at the same time can be prevented?
     setError(message)
-    setTimeout(()=>{
+    setTimeout(() => {
       setError(null)
     }, 4000)
   }
@@ -92,7 +92,7 @@ const App = () => {
     e.preventDefault()
 
     try {
-      const user = await loginService.login({username, password})
+      const user = await loginService.login({ username, password })
 
       window.localStorage.setItem('loggedBlogAppUser', JSON.stringify(user))
 
@@ -110,7 +110,7 @@ const App = () => {
       const res = await blogService.postBlog(blog)
       setBlogs(blogs.concat(res))
       blogFormRef.current.toggleVisibility(false)
-      
+
       handleMessage(`Added a new blog '${res.title}' by '${res.author}'`)
     } catch (exception)
     {
@@ -135,7 +135,7 @@ const App = () => {
       // TODO: should res contain deleted blog?
       const res = await blogService.deleteBlog(blog)
       setBlogs(blogs.filter(b => b.id !== blog.id))
-      
+
       handleMessage(`Removed blog '${blog.title}' by '${blog.author}'`)
     } catch (exception)
     {
