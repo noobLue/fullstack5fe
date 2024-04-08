@@ -7,6 +7,7 @@ import { expect } from 'vitest'
 
 describe('<Blog />', () => {
   let container
+  let mockAddLikes
 
   const user = {
     user: 'root',
@@ -27,11 +28,10 @@ describe('<Blog />', () => {
 
 
   beforeEach(() => {
-    const addLike = () => {}
+    mockAddLikes = vi.fn()
     const removeBlog = () => {}
 
-
-    container = render(<Blog blog={blog} user={user} addLike={addLike} removeBlog={removeBlog}/>).container
+    container = render(<Blog blog={blog} user={user} addLike={mockAddLikes} removeBlog={removeBlog}/>).container
   })
 
   test('at start renders content', () => {
@@ -50,15 +50,21 @@ describe('<Blog />', () => {
     const user = userEvent.setup()
     const button = container.querySelector('.blogTitleAuthor > button')
 
-    console.log(button)
-
     await user.click(button)
 
-    const extraInfo = getExtraInfo(container)
+    expect(getExtraInfo(container)).not.toHaveStyle('display: none')
+  })
 
-    //console.log(extraInfo)
+  test('like button is clicked twice', async () => {
+    const user = userEvent.setup()
+    const button = container.querySelector('.blogLikes > button')
 
-    expect(extraInfo).not.toHaveStyle('display: none')
+    expect(mockAddLikes.mock.calls).toHaveLength(0)
+
+    await user.click(button)
+    await user.click(button)
+
+    expect(mockAddLikes.mock.calls).toHaveLength(2)
   })
 })
 
