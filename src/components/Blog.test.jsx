@@ -1,12 +1,12 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import Blog from './Blog'
 
 import { expect } from 'vitest'
 
 
-test('renders content, does not render extra info', () => {
-
-  //blog, user, addLike, removeBlog
+describe('<Blog />', () => {
+  let container
 
   const user = {
     user: 'root',
@@ -23,16 +23,42 @@ test('renders content, does not render extra info', () => {
     user
   }
 
-  const addLike = () => {}
-  const removeBlog = () => {}
+  const getExtraInfo = container => container.querySelector('.blog > div[name="ExtraBlogInfo"]')
 
-  const { container } = render(<Blog blog={blog} user={user} addLike={addLike} removeBlog={removeBlog}/>)
 
-  const blogTitleElement = container.querySelector('.blogTitleAuthor')
-  const blogExtraInfo = container.querySelector('.blog > div[name="ExtraBlogInfo"]')
+  beforeEach(() => {
+    const addLike = () => {}
+    const removeBlog = () => {}
 
-  expect(blogTitleElement).toHaveTextContent(blog.title)
-  expect(blogTitleElement).toHaveTextContent(blog.author)
 
-  expect(blogExtraInfo).toHaveStyle('display: none')
+    container = render(<Blog blog={blog} user={user} addLike={addLike} removeBlog={removeBlog}/>).container
+  })
+
+  test('at start renders content', () => {
+    const blogTitleElement = container.querySelector('.blogTitleAuthor')
+
+    expect(blogTitleElement).toHaveTextContent(blog.title)
+    expect(blogTitleElement).toHaveTextContent(blog.author)
+  })
+
+
+  test('at start does not render extra info', () => {
+    expect(getExtraInfo(container)).toHaveStyle('display: none')
+  })
+
+  test('renders extra info after click', async () => {
+    const user = userEvent.setup()
+    const button = container.querySelector('.blogTitleAuthor > button')
+
+    console.log(button)
+
+    await user.click(button)
+
+    const extraInfo = getExtraInfo(container)
+
+    //console.log(extraInfo)
+
+    expect(extraInfo).not.toHaveStyle('display: none')
+  })
 })
+
