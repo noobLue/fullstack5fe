@@ -27,7 +27,7 @@ const BlogForm = ({ createBlog }) => {
   }
 
   return (
-    <form onSubmit={handleBlog}>
+    <form className='blogForm' onSubmit={handleBlog}>
       <FormValue key='title' label='title' value={title} name='BlogTitle' setValue={setTitle}></FormValue>
       <FormValue key='author' label='author' value={author} name='BlogAuthor' setValue={setAuthor}></FormValue>
       <FormValue key='url' label='url' value={url} name='BlogUrl' setValue={setUrl}></FormValue>

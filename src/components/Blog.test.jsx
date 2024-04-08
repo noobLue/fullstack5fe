@@ -2,9 +2,6 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Blog from './Blog'
 
-import { expect } from 'vitest'
-
-
 describe('<Blog />', () => {
   let container
   let mockAddLikes
