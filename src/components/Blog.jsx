@@ -34,8 +34,8 @@ const Blog = ({ blog, user, addLike, removeBlog }) => {
   }
 
   return (
-    <div style={{ margin: '7px', padding: '4px', border: 'solid', borderWidth: '1px' }}>
-      {blog.title} - {blog.author} <button onClick={handleVisibility}>{buttonText}</button>
+    <div className='blog' style={{ margin: '7px', padding: '4px', border: 'solid', borderWidth: '1px' }}>
+      <div className='blogTitleAuthor'>{blog.title} - {blog.author} <button onClick={handleVisibility}>{buttonText}</button></div>
       <div name='ExtraBlogInfo' style={{ display: visible ? '' : 'none' }}>
         <div>{blog.url}</div>
         <div>likes: {blog.likes} <button onClick={handleLike}>like</button></div>
