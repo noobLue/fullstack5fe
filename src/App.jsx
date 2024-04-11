@@ -29,6 +29,7 @@ const LoginForm = (handleLogin, username, password, setUsername, setPassword) =>
 }
 
 const Blogs = (user, blogs, addLike, removeBlog) => {
+  console.log(blogs)
   return (<div>
     {blogs.map(blog =>
       <Blog key={blog.id} blog={blog} user={user} addLike={addLike} removeBlog={removeBlog}/>
@@ -65,7 +66,11 @@ const App = () => {
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
-      setBlogs( blogs.sort((a,b) => a.likes < b.likes) )
+      setBlogs( blogs.sort((a,b) => {
+        if(a.likes === b.likes)
+          return 0
+        return a.likes < b.likes ? 1 : -1
+      }))
     )
   }, [])
 
